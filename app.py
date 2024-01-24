@@ -103,7 +103,3 @@ def index():
         data_list.append(result_data)
 
     return render_template('index.html', data_list=data_list)
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
