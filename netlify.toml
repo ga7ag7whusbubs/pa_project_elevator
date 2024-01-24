@@ -1,0 +1,13 @@
+[build]
+  command = "pip install -r requirements.txt && python"
+  publish = "."
+  
+[[headers]]
+  for = "/*"
+    [headers.values]
+      Access-Control-Allow-Origin = "*"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
