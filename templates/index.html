@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Elevator Simulation</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+    <body>
+
+        <div class="wrapper">
+            <main>
+                <div><!-- Wykres położenia -->
+                    <h2>Wyniki symulacji</h2>
+                    <canvas id="positionChart" width="800" height="400"></canvas>
+                    <canvas id="speedChart" width="800" height="400"></canvas>
+                    <canvas id="powerChart" width="800" height="400"></canvas>
+                    <canvas id="forceChart" width="800" height="400"></canvas>
+                    <p id="numPeople"></p>
+                </div>
+            </main>
+            <aside>
+                <div>
+                    <form method="post" action="/" class="variable-inputs">
+                        <h1>Dane</h1>
+                        <label for="load">Ładunek:</label>
+                        <div class="input-group">
+                            <input required="" type="number" name="load" value="0" class="input">
+                        </div>
+
+
+                        <label for="max_floor_height">Wysokość piętra:</label>
+                        <div class="input-group">
+                            <input required="" type="number" name="max_floor_height" value="3" class="input">
+                        </div>
+
+                        <label for="Kp">Współczynnik Kp:</label>
+                        <div class="input-group">
+                            <input required="" type="number" name="Kp" value="1000" step="any" class="input">
+                        </div>
+
+                        <label for="Ki">Współczynnik Ki:</label>
+                        <div class="input-group">
+                            <input required="" type="number" name="Ki" value="1" step="any" class="input">
+                        </div>
+
+                        <label for="Kd">Współczynnik Kd:</label>
+                        <div class="input-group">
+                            <input required="" type="number" name="Kd" value="0.1" step="any" class="input">
+                        </div>
+
+                        <label for="elevator_weight">Masa kabiny windy:</label>
+                        <div class="input-group">
+                            <input required="" type="number" name="elevator_weight" value="500" class="input">
+                        </div>
+
+                        <label for="avg_person_weight">Średnia masa 1 pasażera:</label>
+                        <div class="input-group">
+                            <input required="" type="number" name="avg_person_weight" value="70" class="input">
+                        </div>
+
+                        <label for="simulation_time">Czas symulacji:</label>
+                        <div class="input-group">
+                            <input required="" type="number" name="simulation_time" value="60" class="input">
+                        </div>
+
+                        <a href="/"><button class="bn30" type="submit">Run Simulation</button></a>
+                    </form>
+                </div>
+            </aside>
+        </div>
+        <script>
+        {% if data_list %}
+            var pythonData = {{ data_list[0] | tojson | safe }};
+            console.log("pythonData:", pythonData);
+
+            var positionLabels = pythonData['time_interval'];
+            var positionData = pythonData['position_history'];
+            var numPeoplePosition = pythonData['num_people'];
+            var speedLabels = pythonData['time_interval'];
+            var speedData = pythonData['speed_history'];
+            var numPeopleSpeed = pythonData['num_people'];
+            var powerLabels = pythonData['time_interval'];
+            var powerData = pythonData['power_history'];
+            var numPeoplePower = pythonData['num_people'];
+            var forceLabels = pythonData['time_interval'];
+            var forceData = pythonData['force_history'];
+            var numPeopleForce = pythonData['num_people'];
+
+            createChart('positionChart', positionLabels, positionData, 'Zmiana położenia windy', 'Czas symulacji (s)', 'Wysokość [m]', numPeoplePosition, 'rgba(75, 192, 192, 0.5)', 1, '#F5F7FA');
+            createChart('speedChart', speedLabels, speedData, 'Zmiana prędkości windy', 'Czas symulacji (s)', 'Prędkość [m/s^2]', numPeopleSpeed, 'rgba(75, 192, 192, 0.5)', 1, '#F5F7FA');
+            createChart('powerChart', powerLabels, powerData, 'Zmiana mocy silnika windy', 'Czas symulacji (s)', 'Moc silnika [W]', numPeoplePower, 'rgba(75, 192, 192, 0.5)', 1, '#F5F7FA');
+            createChart('forceChart', forceLabels, forceData, 'Zmiana sił działających na windę', 'Czas symulacji (s)', 'Siła działająca na windę [N]', numPeopleForce, 'rgba(75, 192, 192, 0.5)', 1, '#F5F7FA');
+        {% endif %}
+
+        function createChart(chartId, labels, data, label, xAxisLabel, yAxisLabel, numPeople, lineColor, lineWidth, color) {
+            var ctx = document.getElementById(chartId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${label} - Liczba osób: (${numPeople})`,
+                        data: data,
+                        fill: false,
+                        borderColor: lineColor,
+                        borderWidth: lineWidth,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: xAxisLabel,
+                                color: color,
+                            },
+                            ticks:{
+                                color: color,
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: yAxisLabel,
+                                color: color,
+                            },
+                            ticks:{
+                                color: color,
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+    </body>
+</html>
